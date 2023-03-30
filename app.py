@@ -2,6 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import uuid
 import logging
+import shlex, subprocess
+import re
+from email_validator import validate_email, EmailNotValidError
+
+logging.basicConfig(level=logging.DEBUG)
 
 db = SQLAlchemy()
 app = Flask(__name__)
@@ -19,10 +24,24 @@ class Invite(db.Model):
 #    used_time = db.Column(db.DateTime, nullable=True)
     used = db.Column(db.Boolean)
 
+def check_username(username):
+    if not username.replace(" ", "").isalpha():
+        return False
+    exists = subprocess.Popen(["yunohost", "user", "info", username])
+    if exists.returncode != 0:
+        return False
+    return True
+
 # define a route for the invite code generation page
 @app.route('/', methods=['GET', 'POST'])
 def generate_invite():
     if request.method == 'POST':
+
+        try:
+            validation = validate_email(request.form['email'], check_deliverability=True)
+        except EmailNotValidError as e:
+            logging.info(str(e))
+            return redirect(url_for('error'))
 
         invite_code = uuid.uuid1()
         invite = Invite(
@@ -42,32 +61,51 @@ def generate_invite():
 @app.route('/<invite_code>', methods=['GET', 'POST'])
 def fill_form(invite_code):
     if request.method == 'POST':
+        if not request.form['fullname'].replace(" ", "").isalpha():
+            return redirect(url_for('error'))
+        try:
+            validation = validate_email(request.form['email'], check_deliverability=True)
+        except EmailNotValidError as e:
+            logging.info(str(e))
+            return redirect(url_for('error'))
+        
         try:
             invite = db.session.execute(db.select(Invite).filter_by(invite_code=invite_code)).scalar_one()
             logging.info(f"{invite_code} use status: {invite.used}")
             if invite.used == False:
-        #name = request.form['name']
-        #email = request.form['email']
-
-            # TODO: set invite code status to 'used'
+                fullname = request.form['fullname']
+                email = request.form['email']
+          
                 invite.used = True
                 db.session.commit()
-                logging.error(f"{invite_code} has been set to used")
+                logging.info(f"{invite_code} has been set to used")
+                subprocess.Popen(
+                    [
+                        "yunohost",
+                        "user",
+                        "create",
+                        request.form['username'],
+                        "-F",
+                        request.form['fullname'],
+                        "-p", 
+                        request.form['password']
+                    ])
+                logging.info(f"User created: {request.form['username']}")
+                subprocess.Popen(["yunohost","user","group","add","invitees",request.form['username']])
+                logging.info(f"User {request.form['username']} added to group invitees")
+                return redirect(url_for('thank_you'))
             else:
                 logging.error(f"{invite_code} is set to used: aborting")
+                return redirect(url_for('already_used'))
             # TODO: sudoers.d
             # %invited ALL = /path/to/yunohost user create*
             # %invited ALL = /path/to/yunohost user group add invitees*
 
-            # TODO: Popen from this app
-            # yunohost user create -F -d -p
-            # yunohost user group add invitees user
-
             # TODO: Setup stage, from YNH app packaging
             # yunohost user permissions add xmpp invitees
         except Exception as e:
-            print(str(e))
-            pass
+            logging.error(str(e))
+            return redirect(url_for('error'))
 
         return redirect(url_for('thank_you'))
     # render the form page with the invite code as a parameter
@@ -77,6 +115,11 @@ def fill_form(invite_code):
 @app.route('/thank-you')
 def thank_you():
     return render_template('thank_you.html')
+
+@app.route('/error')
+def error():
+    return render_template('error.html')
+
 
 if __name__ == '__main__':
     with app.app_context():
