@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import uuid
+import logging
 
 db = SQLAlchemy()
 app = Flask(__name__)
@@ -28,7 +29,7 @@ def generate_invite():
           invitee_email=request.form['email'], 
           inviter_ynh_username="jahn", 
           invite_code=str(invite_code),
-          used=0
+          used=False
         )
 
         db.session.add(invite)
@@ -40,24 +41,34 @@ def generate_invite():
 # define a route for the form page
 @app.route('/<invite_code>', methods=['GET', 'POST'])
 def fill_form(invite_code):
-    try:
-        user = db.session.query(Invite).filter_by(invite_code=invite_code).one()
-        if user:
-            print(invite_code)
-    except Exception:
-        print("invalid code")
-        pass
-
-    # TODO: validate invite code
     if request.method == 'POST':
-        form_data = {}
-        form_data['name'] = request.form['name']
-        form_data['email'] = request.form['email']
-        invite_codes[invite_code].append(form_data)
+        try:
+            invite = db.session.execute(db.select(Invite).filter_by(invite_code=invite_code)).scalar_one()
+            logging.info(f"{invite_code} use status: {invite.used}")
+            if invite.used == False:
+        #name = request.form['name']
+        #email = request.form['email']
 
-        # TODO: set invite code status to 'used'
-        # TODO: create user (subprocess.Popen)
-        
+            # TODO: set invite code status to 'used'
+                invite.used = True
+                db.session.commit()
+                logging.error(f"{invite_code} has been set to used")
+            else:
+                logging.error(f"{invite_code} is set to used: aborting")
+            # TODO: sudoers.d
+            # %invited ALL = /path/to/yunohost user create*
+            # %invited ALL = /path/to/yunohost user group add invitees*
+
+            # TODO: Popen from this app
+            # yunohost user create -F -d -p
+            # yunohost user group add invitees user
+
+            # TODO: Setup stage, from YNH app packaging
+            # yunohost user permissions add xmpp invitees
+        except Exception as e:
+            print(str(e))
+            pass
+
         return redirect(url_for('thank_you'))
     # render the form page with the invite code as a parameter
     return render_template('fill_form.html', invite_code=invite_code)

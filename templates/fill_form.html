@@ -1,1 +1,11 @@
-let's make your account now
+<html>
+  <body>
+    <form action="/{{ invite_code }}" method="post">
+      <label for="fullname">Your full name:</label>
+      <input type="text" id="fullname" name="fullname" required />
+      <label for="email">Your email address:</label>
+      <input type="email" id="email" name="email" required />
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>
