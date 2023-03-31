@@ -79,7 +79,7 @@ def fill_form(invite_code):
                 invite.used = True
                 db.session.commit()
                 logging.info(f"{invite_code} has been set to used")
-                subprocess.Popen(
+                ynh_user = subprocess.Popen(
                     [
                         "yunohost",
                         "user",
@@ -90,8 +90,10 @@ def fill_form(invite_code):
                         "-p", 
                         request.form['password']
                     ])
+                ynh_user.wait()
                 logging.info(f"User created: {request.form['username']}")
-                subprocess.Popen(["yunohost","user","group","add","invitees",request.form['username']])
+                ynh_group = subprocess.Popen(["yunohost","user","group","add","invitees",request.form['username']])
+                ynh_group.wait()
                 logging.info(f"User {request.form['username']} added to group invitees")
                 return redirect(url_for('thank_you'))
             else:
