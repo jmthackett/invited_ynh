@@ -11,8 +11,8 @@ maintainers = ["John Hackett"]
 
 [upstream]
 license = "GPLv2"
-website = "https://github.com/jmthackett/yunohost_invited"
-code = "https://github.com/jmthackett/yunohost_invited"
+website = "https://github.com/jmthackett/invited_ynh"
+code = "https://github.com/jmthackett/invited_ynh"
 
 [integration]
 yunohost = ">= 11.1.15"
@@ -39,11 +39,6 @@ ram.runtime = "50M"
 [resources]
 
     [resources.sources]
-
-        [resources.sources.main]
-        url = ""
-        sha256 = ""
-        autoupdate.strategy = "latest_github_tag"
 
     [resources.system_user]
 
