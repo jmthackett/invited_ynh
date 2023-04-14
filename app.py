@@ -24,6 +24,9 @@ class Invite(db.Model):
 #    used_time = db.Column(db.DateTime, nullable=True)
     used = db.Column(db.Boolean)
 
+with app.app_context():
+    db.create_all()
+
 def check_username(username):
     if not username.replace(" ", "").isalpha():
         return False
