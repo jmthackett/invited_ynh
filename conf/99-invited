@@ -1,2 +1,2 @@
-%__APP__ ALL = /path/to/yunohost user create*
-%__APP__ ALL = /path/to/yunohost user group add invitees*
+%invited_default_group ALL = /usr/bin/yunohost user create*
+%invited_default_group ALL = /usr/bin/yunohost user group add invitees*
