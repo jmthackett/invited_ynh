@@ -28,6 +28,10 @@ ynh_setup_source --dest_dir="$install_dir"
 # ownership to all files such as after the ynh_setup_source step
 chown -R $app:www-data "$install_dir"
 
+mkdir -p /var/run/gunicorn
+usermod -g $app www-data
+chown -R $app:www-data /var/run/gunicorn
+
 #=================================================
 # SYSTEM CONFIGURATION
 #=================================================
