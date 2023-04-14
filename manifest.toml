@@ -44,8 +44,8 @@ ram.runtime = "50M"
         # This will pre-fetch the asset which can then be deployed during the install/upgrade scripts with :
         #    ynh_setup_source --dest_dir="$install_dir"
         # You can also define other assets than "main" and add --source_id="foobar" in the previous command
-        url = "https://github.com/jmthackett/invited_ynh/archive/refs/tags/0.0.4.zip"
-        sha256 = "f6595f6d18bba8007cfa481d7650a1e91bad4fc53dafad8d749385702471e887"
+        url = "https://github.com/jmthackett/invited_ynh/archive/refs/tags/0.0.5.zip"
+        sha256 = "fdad732ebd142315f594c0197a6214ac27a018d7a110834e0d3d075cd266a56e"
 
         # These infos are used by https://github.com/YunoHost/apps/blob/master/tools/autoupdate_app_sources/autoupdate_app_sources.py
         # to auto-update the previous asset urls and sha256sum + manifest version
