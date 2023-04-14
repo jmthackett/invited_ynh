@@ -35,6 +35,9 @@ def check_username(username):
 # define a route for the invite code generation page
 @app.route('/', methods=['GET', 'POST'])
 def generate_invite():
+    if not request.cookies.get('SSOwAuthUser'):
+      return render_template('request_invite.html')
+    print(request.cookies.get('SSOwAuthUser'))
     if request.method == 'POST':
 
         try:
