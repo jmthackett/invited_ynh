@@ -28,10 +28,10 @@ ram.runtime = "50M"
     [install.domain]
     type = "domain"
 
-    [install.target_group] # what group do we add users to?
-    ask.en = "What group should new users be added to? (Remember to add permissions to non-default groups)"
-    type = "string"
-
+    [install.target_permissions] # what group do we add users to?
+    ask.en = "What permissions should the new users have? (Create a new group to give users more limited permissions!)"
+    type = "group"
+    
     [install.init_main_permission]
     type = "group"
     default = "visitors"
