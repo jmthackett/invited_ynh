@@ -45,6 +45,7 @@ ram.runtime = "50M"
         #    ynh_setup_source --dest_dir="$install_dir"
         # You can also define other assets than "main" and add --source_id="foobar" in the previous command
         url = "https://github.com/jmthackett/invited_ynh"
+        sha256 = "2b9b9f4117bc9d9fbb32a51c60a6f853d4d3df6e5d3c8d80eb5fddc9a6970d37"
 
         # These infos are used by https://github.com/YunoHost/apps/blob/master/tools/autoupdate_app_sources/autoupdate_app_sources.py
         # to auto-update the previous asset urls and sha256sum + manifest version
