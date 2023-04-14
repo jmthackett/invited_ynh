@@ -1,0 +1,2 @@
+%__APP__ ALL = /path/to/yunohost user create*
+%__APP__ ALL = /path/to/yunohost user group add invitees*
