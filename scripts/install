@@ -127,6 +127,7 @@ ynh_script_progression --message="Adding a configuration file..." --weight=1
 
 ynh_add_config --template="99-invited" --destination="/etc/sudoers.d/99-$app-invited"
 ynh_replace_string --match_string="invited_default_group" --replace_string="$app" --target_file="/etc/sudoers.d/99-$app-invited"
+ynh_replace_string --match_string="invited_target_user_group" --replace_string="$app" --target_file="/etc/sudoers.d/99-$app-invited" # TODO: replace string with user specified group
 
 #chmod 400 "$install_dir/some_config_file"
 #chown $app:$app "$install_dir/some_config_file"

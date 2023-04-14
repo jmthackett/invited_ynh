@@ -6,7 +6,7 @@ import shlex, subprocess
 import re
 from email_validator import validate_email, EmailNotValidError
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 db = SQLAlchemy()
 app = Flask(__name__)
@@ -68,39 +68,47 @@ def generate_invite():
 def fill_form(invite_code):
     if request.method == 'POST':
         if not request.form['fullname'].replace(" ", "").isalpha():
+            logging.info(request.form['fullname'])
             return redirect(url_for('error'))
+#        try:
+#            validation = validate_email(request.form['email'], check_deliverability=True)
+#        except EmailNotValidError as e:
+#            logging.info(str(e))
+#            return redirect(url_for('error'))
+
         try:
-            validation = validate_email(request.form['email'], check_deliverability=True)
-        except EmailNotValidError as e:
-            logging.info(str(e))
-            return redirect(url_for('error'))
-        
-        try:
-            invite = db.session.execute(db.select(Invite).filter_by(invite_code=invite_code)).scalar_one()
+            logging.info("trying invite lookup")
+            invite = Invite.query.filter_by(invite_code=invite_code).first()
             logging.info(f"{invite_code} use status: {invite.used}")
             if invite.used == False:
+                username = request.form['username']
                 fullname = request.form['fullname']
-                email = request.form['email']
-          
+                password = request.form['user_password']
+
+                logging.info(f"user: {username}, name: {fullname}")
+
                 invite.used = True
                 db.session.commit()
                 logging.info(f"{invite_code} has been set to used")
                 ynh_user = subprocess.Popen(
                     [
+                        "sudo",
                         "yunohost",
                         "user",
                         "create",
-                        request.form['username'],
+                        username,
                         "-F",
-                        request.form['fullname'],
-                        "-p", 
-                        request.form['password']
+                        fullname,
+                        "-p",
+                        password,
+                        "-d",
+                        target_domain
                     ])
                 ynh_user.wait()
-                logging.info(f"User created: {request.form['username']}")
-                ynh_group = subprocess.Popen(["yunohost","user","group","add","invitees",request.form['username']])
+                logging.info(f"User created: {username}")
+                ynh_group = subprocess.Popen(["sudo","yunohost","user","group","add",target_group,username])
                 ynh_group.wait()
-                logging.info(f"User {request.form['username']} added to group invitees")
+                logging.info(f"User {username} added to group {target_group}")
                 return redirect(url_for('thank_you'))
             else:
                 logging.error(f"{invite_code} is set to used: aborting")
@@ -113,6 +121,7 @@ def fill_form(invite_code):
             # yunohost user permissions add xmpp invitees
         except Exception as e:
             logging.error(str(e))
+            logging.error("exception")
             return redirect(url_for('error'))
 
         return redirect(url_for('thank_you'))

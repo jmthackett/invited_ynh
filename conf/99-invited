@@ -1,2 +1,2 @@
 %invited_default_group ALL = /usr/bin/yunohost user create*
-%invited_default_group ALL = /usr/bin/yunohost user group add invitees*
+%invited_default_group ALL = /usr/bin/yunohost user group add invited_target_user_group*
