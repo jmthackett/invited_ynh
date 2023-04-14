@@ -29,7 +29,7 @@ ynh_setup_source --dest_dir="$install_dir"
 chown -R $app:www-data "$install_dir"
 
 mkdir -p /var/run/gunicorn
-usermod -g $app www-data || true
+usermod -a -G $app www-data || true
 chown -R $app:www-data /var/run/gunicorn
 
 #=================================================
