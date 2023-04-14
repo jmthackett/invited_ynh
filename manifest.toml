@@ -62,4 +62,4 @@ ram.runtime = "50M"
     main.url = "/"
 
     [resources.apt]
-    packages = "python3-venv sqlite3"
+    packages = "python3-gunicorn python3-flask python3-flask-sqlalchemy python3-email-validator sqlite3"
