@@ -6,11 +6,8 @@
 # IMPORT GENERIC HELPERS
 #=================================================
 
-source _common.sh
+#source _common.sh
 source /usr/share/yunohost/helpers
-
-groupadd "$app"
-useradd "$app" -g "$app"
 
 #=================================================
 # APP "BUILD" (DEPLOYING SOURCES, VENV, COMPILING ETC)
@@ -127,8 +124,8 @@ ynh_script_progression --message="Adding a configuration file..." --weight=1
 ynh_add_config --template="99-invited" --destination="/etc/sudoers.d/99-$app-invited"
 ynh_replace_string --match_string="invited_default_group" --replace_string="$app" --target_file="/etc/sudoers.d/99-$app-invited"
 
-chmod 400 "$install_dir/some_config_file"
-chown $app:$app "$install_dir/some_config_file"
+#chmod 400 "$install_dir/some_config_file"
+#chown $app:$app "$install_dir/some_config_file"
 
 ### For more complex cases where you want to replace stuff using regexes,
 ### you shoud rely on ynh_replace_string (which is basically a wrapper for sed)
